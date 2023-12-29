@@ -59,17 +59,24 @@ def classify_new_instance(email):
     for word in words:
         if attribute_probabilities.get(word):
             spam_conditional_value *= attribute_probabilities.get(word)[0]
+        else:
+            spam_conditional_value *= 0.5
     email_spam_prob = spam_probability * spam_conditional_value
 
     not_spam_conditional_value = 1.0
     for word in words:
         if attribute_probabilities.get(word):
             not_spam_conditional_value *= attribute_probabilities.get(word)[1]
+        else:
+            not_spam_conditional_value *= 0.5
     email_not_spam_prob = not_spam_probability * not_spam_conditional_value
 
+    email_val = email.split('\\')[-1]
     if email_spam_prob > email_not_spam_prob:
+        print(f"Email {email_val} is spam")
         return "spam"
     else:
+        print(f"Email {email_val} is not spam")
         return "not_spam"
 
 
