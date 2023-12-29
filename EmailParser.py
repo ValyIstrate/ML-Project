@@ -5,12 +5,13 @@ import json
 
 def parse_emails(root_folder: str):
     emails = glob.glob(os.path.join(root_folder, '**/*.txt'), recursive=True)
+    spam = 0
+    not_spam = 0
     spam_dict: dict = {}
     not_spam_dict: dict = {}
     for email in emails:
         # keep the part 10 folder for testing
         if not email.__contains__("part10"):
-            print(email)
             with open(email, 'r') as file:
                 words = file.read().split()
                 for word in words:
@@ -18,10 +19,12 @@ def parse_emails(root_folder: str):
                         if email.split('\\')[-1].startswith("s"):
                             # if file name starts with s -> the email is classified as spam
                             add_to_dict(spam_dict, word.lower())
+                            spam += 1
                         else:
                             add_to_dict(not_spam_dict, word.lower())
+                            not_spam += 1
 
-    return spam_dict, not_spam_dict
+    return spam_dict, not_spam_dict, (spam / (spam + not_spam))
 
 
 def add_to_dict(body: dict, string: str):
@@ -47,7 +50,10 @@ def create_data(spam_dict: dict, not_spam_dict: dict):
 
 def write_data_to_json_file(root_folder: str):
     json_file_path = "data.json"
+    prob_file_path = "spam_probability.txt"
 
-    spam, not_spam = parse_emails(root_folder)
+    spam, not_spam, spam_probability = parse_emails(root_folder)
     with open(json_file_path, 'w') as file:
         json.dump(create_data(spam, not_spam), file)
+    with open(prob_file_path, 'w') as file:
+        file.write(str(spam_probability))
