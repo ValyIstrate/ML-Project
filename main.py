@@ -1,6 +1,7 @@
 import EmailParser as ep
 import json
 import os
+import glob
 
 
 def get_words_from_email(email):
@@ -106,10 +107,33 @@ def check_email_classifier_result(email, result):
             return True
         else:
             return False
+        
 
+def loocv(file_path: str):
+    acc = []
+    emails = glob.glob(os.path.join(file_path, '**/*.txt'), recursive=True)
+    for email in emails:
+       if not email.__contains__("part10"):
+           print(f"Excluding file {email}")
+           count += 1
+           ep.write_data_to_json_file(file_path)
+           correct_precentage = validate_model()
+           acc.append(correct_precentage)
+           print(f"Valid percentage: {correct_precentage}")
+    return acc
+           
 
 if __name__ == '__main__':
-    # ep.write_data_to_json_file("lingspam_public/bare")
-    # Result was 87%
-    correct_percentage = validate_model()
-    print(f"Valid Percentage: {correct_percentage}")
+    choice: bool = True
+    # Normal training with all folders
+    if not choice:
+        ep.write_data_to_json_file("lingspam_public/bare")
+        # Result was 87%
+        correct_percentage = validate_model()
+        print(f"Valid Percentage: {correct_percentage}")
+
+    # LOOCV
+    if choice:
+        acc = loocv("lingspam_public/bare")
+        print(acc)
+    

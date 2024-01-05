@@ -3,7 +3,7 @@ import glob
 import json
 
 
-def parse_emails(root_folder: str):
+def parse_emails(root_folder: str, skip_file: str = None):
     emails = glob.glob(os.path.join(root_folder, '**/*.txt'), recursive=True)
     spam = 0
     not_spam = 0
@@ -11,6 +11,9 @@ def parse_emails(root_folder: str):
     not_spam_dict: dict = {}
     for email in emails:
         # keep the part 10 folder for testing
+        if skip_file is not None:
+            if email == skip_file:
+                continue
         if not email.__contains__("part10"):
             with open(email, 'r') as file:
                 words = file.read().split()
